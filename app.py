@@ -1,37 +1,24 @@
-﻿
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
 
-
-st.set_page_config(
-    page_title="Netflix Country-Wise Analysis",
-    page_icon="🌍",
-    layout="wide"
-)
-
+st.set_page_config(page_title="Netflix Country-Wise Analysis", page_icon="🌍", layout="wide")
 
 st.markdown("""
 <style>
-.stApp {
-    background: linear-gradient(135deg, #f0fff7, #e3f5eb, #f8fffb);
-}
-h1, h2, h3 {
-    color: #246b52;
-}
+.stApp {background: linear-gradient(135deg, #f0fff7, #e3f5eb, #f8fffb);}
+h1, h2, h3 {color: #246b52;}
 [data-testid="stMetric"] {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255,255,255,0.85);
     border: 1px solid #cce8d8;
     padding: 18px;
     border-radius: 16px;
 }
-.stButton button, .stDownloadButton button {
-    border-radius: 10px;
-}
+.stButton button, .stDownloadButton button {border-radius: 10px;}
 </style>
 """, unsafe_allow_html=True)
-
 
 data_path = Path(__file__).parent / "Dataset.csv"
 
@@ -45,46 +32,30 @@ required_columns = {"show_id", "title", "type", "country"}
 missing_columns = required_columns - set(df.columns)
 
 if missing_columns:
-    st.error(f"Dataset is missing required columns: {', '.join(sorted(missing_columns))}")
+    st.error("Dataset is missing required columns: " + ", ".join(sorted(missing_columns)))
     st.stop()
 
-
-country_df = df[["show_id", "title", "type", "country"]].dropna(
-    subset=["country"]
-).copy()
-
+country_df = df[["show_id", "title", "type", "country"]].dropna(subset=["country"]).copy()
 country_df["country"] = country_df["country"].astype(str).str.split(",")
 country_df = country_df.explode("country")
 country_df["country"] = country_df["country"].str.strip()
 country_df = country_df[country_df["country"] != ""]
 
-country_counts = (
-    country_df.groupby("country")
-    .size()
-    .sort_values(ascending=False)
-)
-
+country_counts = country_df.groupby("country").size().sort_values(ascending=False)
 
 st.title("🌍 Netflix Country-Wise Content Analysis")
 st.caption("Auspify Technologies | Data Analysis Using Python")
 st.markdown("---")
 
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Countries / Regions", f"{len(country_counts):,}")
-col2.metric("Title-Country Associations", f"{len(country_df):,}")
-col3.metric("Top Country", country_counts.idxmax() if not country_counts.empty else "N/A")
+c1, c2, c3 = st.columns(3)
+c1.metric("Countries / Regions", f"{len(country_counts):,}")
+c2.metric("Title-Country Associations", f"{len(country_df):,}")
+c3.metric("Top Country", country_counts.idxmax() if not country_counts.empty else "N/A")
 
 st.markdown("---")
-
-
 st.subheader("🏆 Top 10 Countries by Content")
 
-top10 = (
-    country_counts.head(10)
-    .sort_values(ascending=True)
-    .reset_index()
-)
+top10 = country_counts.head(10).sort_values(ascending=True).reset_index()
 top10.columns = ["Country", "Titles"]
 
 fig = px.bar(
@@ -106,12 +77,7 @@ fig.update_layout(
     margin=dict(l=10, r=10, t=55, b=10)
 )
 
-st.plotly_chart(
-    fig,
-    width="stretch",
-    key="top_countries_chart"
-)
-
+st.plotly_chart(fig, width="stretch", key="top_countries_chart")
 
 st.markdown("---")
 st.subheader("🔎 Explore a Country")
@@ -119,11 +85,7 @@ st.subheader("🔎 Explore a Country")
 countries = sorted(country_counts.index.tolist())
 
 if countries:
-    default_country = (
-        "India" if "India" in countries
-        else countries[0]
-    )
-
+    default_country = "India" if "India" in countries else countries[0]
     country = st.selectbox(
         "Select a country or region",
         countries,
@@ -141,12 +103,7 @@ if countries:
 
     with right:
         st.markdown(f"#### Content distribution in {country}")
-
-        type_counts = (
-            selected.groupby("type")
-            .size()
-            .reset_index(name="Titles")
-        )
+        type_counts = selected.groupby("type").size().reset_index(name="Titles")
 
         fig2 = px.pie(
             type_counts,
@@ -166,20 +123,14 @@ if countries:
             margin=dict(l=10, r=10, t=55, b=10)
         )
 
-        st.plotly_chart(
-            fig2,
-            width="stretch",
-            key="content_type_chart"
-        )
+        st.plotly_chart(fig2, width="stretch", key="content_type_chart")
 
-    
     with st.expander(f"View titles associated with {country}"):
         st.dataframe(
             selected[["title", "type", "country"]].drop_duplicates(),
             width="stretch",
             hide_index=True
         )
-
 
 st.markdown("---")
 st.subheader("📊 Country-Wise Summary")
@@ -195,20 +146,17 @@ summary = (
     .sort_values("Title_Associations", ascending=False)
 )
 
-st.dataframe(
-    summary,
-    width="stretch",
-    hide_index=True
-)
+st.dataframe(summary, width="stretch", hide_index=True)
 
 st.download_button(
-    label="📥 Download Country-Wise Analysis CSV",
+    "📥 Download Country-Wise Analysis CSV",
     data=summary.to_csv(index=False).encode("utf-8"),
     file_name="country_wise_analysis.csv",
     mime="text/csv",
     key="download_country_summary"
 )
 
-
 st.markdown("---")
 st.caption("Netflix Country-Wise Analysis | Python • Pandas • Plotly • Streamlit")
+﻿
+
