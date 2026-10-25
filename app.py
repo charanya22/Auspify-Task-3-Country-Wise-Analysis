@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -158,5 +157,3 @@ st.download_button(
 
 st.markdown("---")
 st.caption("Netflix Country-Wise Analysis | Python • Pandas • Plotly • Streamlit")
-﻿
-
